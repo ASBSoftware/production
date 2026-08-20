@@ -1,0 +1,9 @@
+{
+  "name": "ClassCapture",
+  "short_name": "ClassCapture",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f7f7",
+  "theme_color": "#142b2f",
+  "description": "Secure daily class coverage dashboard"
+}
