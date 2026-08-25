@@ -23,7 +23,10 @@ export async function removeCapture(captureId: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "You must be signed in." };
   const { error } = await supabase.from("captures").delete().eq("id", captureId).eq("user_id", user.id);
-  if (error) return { error: "Unable to remove the capture." };
+  if (error) {
+  if (error.code === "23505") return { error: "This class is already counted for that date." };
+  return { error: error.message || "Unable to save the capture.", code: error.code || "unknown" };
+};
   revalidatePath("/");
   return { ok: true };
 }
