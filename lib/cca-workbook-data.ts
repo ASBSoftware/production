@@ -120,3 +120,11 @@ for (const activity of [...semester1, ...semester2]) activity.category = "CCA";
 export const ccaActivities: CcaActivity[] = [...semester1, ...semester2, ...asiac, ...saisa, ...possibilities];
 export function ccaDayFor(date: string) { return new Date(`${date}T12:00:00`).toLocaleDateString("en-US", { weekday: "long" }); }
 export function ccaActiveOn(activity: CcaActivity, date: string) { return date >= activity.startDate && date <= activity.endDate && activity.days.includes(ccaDayFor(date)); }
+export type CcaTimeBand = "before" | "during" | "after" | "review";
+export function ccaBands(activity: CcaActivity): CcaTimeBand[] {
+  if (activity.timings === "N/A" || activity.timings.includes("TBD") || activity.timings.includes("????")) return ["review"];
+  const bands: CcaTimeBand[] = [];
+  if (/(?:0?[5-8]|08):\d{2}\s*(?:am|AM)?|0?[1-8]:\d{2}\s*am/i.test(activity.timings)) bands.push("before");
+  if (/(?:3:45|4:|5:|6:|7:|8:|9:|10:|11:|12:)/.test(activity.timings)) bands.push("after");
+  return bands.length ? [...new Set(bands)] : ["review"];
+}
