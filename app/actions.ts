@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "../lib/supabase/server";
 import { scheduleData } from "../lib/schedule-data";
+import { ccaActivities } from "../lib/cca-workbook-data";
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -38,16 +39,13 @@ export async function removeCapture(captureId: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "You must be signed in." };
   const { error } = await supabase.from("captures").delete().eq("id", captureId).eq("user_id", user.id);
-  if (error) {
-  if (error.code === "23505") return { error: "This class is already counted for that date." };
-  return { error: error.message || "Unable to save the capture.", code: error.code || "unknown" };
-};
+  if (error) return { error: "Unable to remove the capture." };
   revalidatePath("/");
   return { ok: true };
 }
 
 export async function addCcaCapture(activityId: string, captureDate: string) {
-  if (!datePattern.test(captureDate) || !activityId.startsWith("cca-")) return { error: "Invalid activity or date." };
+  if (!datePattern.test(captureDate) || !ccaActivities.some((activity) => activity.id === activityId)) return { error: "Invalid activity or date." };
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "You must be signed in." };

@@ -1,9 +1,13 @@
 -- Additive migration for Athletics and CCA. It does not alter academic tables.
+alter table if exists public.cca_captures drop constraint if exists cca_captures_activity_id_fkey;
+alter table if exists public.cca_activities drop constraint if exists cca_activities_category_check;
+alter table if exists public.cca_activities drop constraint if exists cca_activities_season_check;
+
 create table if not exists public.cca_activities (
   id text primary key,
   activity_name text not null,
-  category text not null check (category in ('Athletics', 'Activities')),
-  season text not null check (season in ('Season 1', 'Season 2', 'Season 3')),
+  category text not null,
+  season text not null,
   start_date date not null,
   end_date date not null,
   days text[] not null,
@@ -18,7 +22,7 @@ create table if not exists public.cca_activities (
 create table if not exists public.cca_captures (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
-  activity_id text not null references public.cca_activities(id) on delete restrict,
+  activity_id text not null,
   capture_date date not null,
   created_at timestamptz not null default now(),
   constraint cca_one_visit_per_activity_per_day unique (user_id, activity_id, capture_date)
