@@ -148,12 +148,19 @@ export function ccaBands(activity: CcaActivity, date?: string): CcaTimeBand[] {
 
   for (let index = 0; index < timeMatches.length; index += 1) {
     const match = timeMatches[index];
-    const segmentStart = index === 0 ? 0 : (timeMatches[index - 1].index ?? 0) + timeMatches[index - 1][0].length;
+    const previous = timeMatches[index - 1];
+    const next = timeMatches[index + 1];
+    const segmentStart = index === 0 ? 0 : (previous.index ?? 0) + previous[0].length;
     const segment = activity.timings.slice(segmentStart, match.index ?? activity.timings.length);
     const segmentDays = [...segment.matchAll(dayPattern)].map((dayMatch) => dayAliases[dayMatch[1].toLowerCase()]);
     if (targetDay && segmentDays.length && !segmentDays.includes(targetDay)) continue;
     if (targetDay && !segmentDays.length && index > 0) continue;
-    bands.push(bandForMinutes(minutesFromTime(match[1], match[2], match[3])));
+    const textToNextTime = next ? activity.timings.slice((match.index ?? 0) + match[0].length, next.index ?? activity.timings.length) : "";
+    dayPattern.lastIndex = 0;
+    const sameRange = Boolean(next && !dayPattern.test(textToNextTime));
+    dayPattern.lastIndex = 0;
+    const inheritedMeridiem = !match[3] && sameRange ? next?.[3] : undefined;
+    bands.push(bandForMinutes(minutesFromTime(match[1], match[2], match[3] ?? inheritedMeridiem)));
   }
 
   return bands.length ? [...new Set(bands)] : ["review"];
