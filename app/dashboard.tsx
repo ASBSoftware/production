@@ -17,8 +17,10 @@ function numbers(item: ClassItem) {
   const subject = item.subject || "";
   if (/^Math 2E\b|^Math 2\b|^Math 3\b/i.test(subject)) return [9, 10];
   if (/^M\/?S Spanish Novice|^M\/?S French Novice/i.test(subject)) return [7];
-  if (/^HS Theatre\b|^HS Band\b|^HS Visual Arts\b/i.test(subject)) return [9, 10];
+  if (/^H\/?S IAOL\b|^HS Theatre\b|^HS Band\b|^HS Visual Arts\b/i.test(subject)) return [9, 10];
+  if (/^H\/?S Spanish\b|^H\/?S French\b/i.test(subject) && !/\b(11|12)\b/.test(subject)) return [9, 10];
   if (/^SEM\s*1:\s*(?:Indust(?:rial)? Design|Cine Design|Graph Design)/i.test(subject)) return [9, 10];
+  if (/^Research Possible (?:MS|HS) Math Elective|^Quarter-long MS Math Lab/i.test(subject)) return [9, 10];
   const explicitGrades = [...subject.matchAll(/\b(6|7|8|9|10|11|12)\b/g)].map((m) => Number(m[1]));
   if (explicitGrades.length) return [...new Set(explicitGrades)].sort((a, b) => a - b);
   const upper = subject.toUpperCase();
