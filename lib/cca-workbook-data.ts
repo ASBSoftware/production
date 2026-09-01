@@ -123,7 +123,7 @@ export function ccaActiveOn(activity: CcaActivity, date: string) { return date >
 export type CcaTimeBand = "before" | "during" | "after" | "review";
 const dayAliases: Record<string, string> = { mon: "Monday", monday: "Monday", tue: "Tuesday", tues: "Tuesday", tuesday: "Tuesday", wed: "Wednesday", weds: "Wednesday", wednesday: "Wednesday", thu: "Thursday", thur: "Thursday", thurs: "Thursday", thursday: "Thursday", fri: "Friday", friday: "Friday", sat: "Saturday", saturday: "Saturday", sun: "Sunday", sunday: "Sunday" };
 
-function minutesFromTime(hourText: string, minuteText: string, meridiem?: string) {
+function minutesFromTime(hourText: string, minuteText = "0", meridiem?: string) {
   let hour = Number(hourText);
   const minute = Number(minuteText);
   const suffix = meridiem?.toLowerCase();
@@ -142,7 +142,7 @@ export function ccaBands(activity: CcaActivity, date?: string): CcaTimeBand[] {
   if (activity.timings === "N/A" || activity.timings.includes("TBD") || activity.timings.includes("????")) return ["review"];
   const targetDay = date ? ccaDayFor(date) : undefined;
   const bands: CcaTimeBand[] = [];
-  const timePattern = /(\d{1,2}):(\d{2})\s*(am|pm)?/gi;
+  const timePattern = /(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/gi;
   const dayPattern = /\b(mon(?:day)?|tues?(?:day)?|wed(?:nesday|s)?|thu(?:rs?|r?day)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)\b/gi;
   const timeMatches = [...activity.timings.matchAll(timePattern)];
 

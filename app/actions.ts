@@ -65,3 +65,25 @@ export async function removeCcaCapture(captureId: string) {
   revalidatePath("/");
   return { ok: true };
 }
+
+export async function saveCcaAssignment(activityId: string, assignmentDate: string, photographer: "Jerry" | "Chris") {
+  if (!datePattern.test(assignmentDate) || !ccaActivities.some((activity) => activity.id === activityId)) return { error: "Invalid activity or date." };
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "You must be signed in." };
+  const { data, error } = await supabase.from("cca_assignments").upsert({ user_id: user.id, activity_id: activityId, assignment_date: assignmentDate, photographer }, { onConflict: "user_id,activity_id,assignment_date" }).select("id,activity_id,assignment_date,photographer").single();
+  if (error) return { error: "Unable to save the photographer assignment." };
+  revalidatePath("/");
+  return { assignment: data };
+}
+
+export async function removeCcaAssignment(activityId: string, assignmentDate: string) {
+  if (!datePattern.test(assignmentDate) || !ccaActivities.some((activity) => activity.id === activityId)) return { error: "Invalid activity or date." };
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "You must be signed in." };
+  const { error } = await supabase.from("cca_assignments").delete().eq("user_id", user.id).eq("activity_id", activityId).eq("assignment_date", assignmentDate);
+  if (error) return { error: "Unable to remove the photographer assignment." };
+  revalidatePath("/");
+  return { ok: true };
+}
